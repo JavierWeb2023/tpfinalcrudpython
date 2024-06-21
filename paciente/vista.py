@@ -64,7 +64,7 @@ class Frame(tk.Frame):
         self.label_especialidad.config(font=('Arial',14,'bold','italic'))
         self.label_especialidad.grid(row= 0, column=2,padx=10,pady=10)
 
-        self.label_medico = tk.Label(self, text="Médicos: ")
+        self.label_medico = tk.Label(self, text="Médico: ")
         self.label_medico.config(font=('Arial',14,'bold','italic'))
         self.label_medico.grid(row= 2, column=2,padx=10,pady=10)
     
@@ -190,7 +190,7 @@ class Frame(tk.Frame):
         self.tabla.heading('#1',text='Nombre')
         self.tabla.heading('#2',text='Apellido')
         self.tabla.heading('#3',text='Historia')
-        self.tabla.heading('#4',text='Telefono')
+        self.tabla.heading('#4',text='Teléfono')
         self.tabla.heading('#5',text='Especialidad')
         self.tabla.heading('#6',text='Médico')
 
