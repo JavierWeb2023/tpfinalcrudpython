@@ -12,11 +12,8 @@ def crear_tabla():
 
             CREATE TABLE IF NOT EXISTS Medicos(
             idMedico INTEGER NOT NULL, 
-            Nombre VARCHAR(60),
-            Apellido VARCHAR(60),
-            Especialidad INTEGER,
-            PRIMARY KEY (idMedico AUTOINCREMENT),
-            FOREIGN KEY (Especialidad) References Especialidad(idEspecialidad)
+            Nombre VARCHAR(100),
+            PRIMARY KEY (idMedico AUTOINCREMENT)
             );
 
             CREATE TABLE IF NOT EXISTS Pacientes(
@@ -26,8 +23,10 @@ def crear_tabla():
             Historia VARCHAR(60),
             Telefono VARCHAR(60),
             Especialidad INTEGER,
+            Medico INTEGER,
             PRIMARY KEY (idPaciente AUTOINCREMENT),
-            FOREIGN KEY (Especialidad) References Especialidad(idEspecialidad)
+            FOREIGN KEY (Especialidad) References Especialidad(idEspecialidad),
+            FOREIGN KEY (Medico) References Medicos(idMedico)
             );
             '''
     try:
@@ -61,6 +60,8 @@ def listar_pacientes():
             FROM Pacientes as P
             inner join Especialidad as E
             on P.Especialidad = E.idEspecialidad
+            inner join Medicos as M
+            on P.Medico = M.idMedico
          """
     
     try:
@@ -72,14 +73,11 @@ def listar_pacientes():
     except:
         pass
 
-def listar_medicos():
+def listar_medico():
     conn = ConeccionDB()
     listar_medico = []
     sql = """
-            SELECT *
-            FROM Medicos as M
-            inner join Especialidad as E
-            on M.Especialidad = E.idEspecialidad
+            SELECT * FROM Medicos
          """
     
     try:
@@ -93,24 +91,25 @@ def listar_medicos():
 
 
 class Pacientes:
-    def __init__(self, nombre, apellido, historia, telefono, especialidad):
+    def __init__(self, nombre, apellido, historia, telefono, especialidad, medico):
         self.id_pacientes = None
         self.nombre = nombre
         self.apellido = apellido
         self.historia = historia
         self.telefono = telefono
         self.especialidad = especialidad
+        self.medico = medico
 
     def __str__(self):
-        return f'Paciente[{self.nombre},{self.apellido},{self.historia},{self.telefono},{self.especialidad}]'
+        return f'Paciente[{self.nombre},{self.apellido},{self.historia},{self.telefono},{self.especialidad},{self.medico}]'
 
 
 def guardar_paciente(paciente):
     conn = ConeccionDB()
 
     sql = f"""
-            INSERT INTO Pacientes (Nombre,Apellido,Historia,Telefono,Especialidad)
-            VALUES('{paciente.nombre}','{paciente.apellido}','{paciente.historia}','{paciente.telefono}',{paciente.especialidad});
+            INSERT INTO Pacientes (Nombre,Apellido,Historia,Telefono,Especialidad,Medico)
+            VALUES('{paciente.nombre}','{paciente.apellido}','{paciente.historia}','{paciente.telefono}',{paciente.especialidad},{paciente.medico});
             """
     
     conn.cursor.execute(sql)
@@ -122,7 +121,7 @@ def editar_paciente(paciente, id):
 
     sql = f"""
             UPDATE Pacientes
-            SET Nombre = '{paciente.nombre}', Apellido = '{paciente.apellido}', Historia = '{paciente.historia}', Telefono = '{paciente.telefono}', Especialidad = {paciente.especialidad}
+            SET Nombre = '{paciente.nombre}', Apellido = '{paciente.apellido}', Historia = '{paciente.historia}', Telefono = '{paciente.telefono}', Especialidad = {paciente.especialidad}, Medico = {paciente.medico}
             WHERE idPaciente = {id};
             """
     
