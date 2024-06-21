@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from estructura.consultas import Pacientes, listar_especialidad, listar_medicos, listar_pacientes, guardar_paciente, editar_paciente, borrar_paciente
+from estructura.consultas import Pacientes, listar_especialidad, listar_medico, listar_pacientes, guardar_paciente, editar_paciente, borrar_paciente
 
 def barra_menu(root):
     barra = tk.Menu(root)
@@ -63,6 +63,10 @@ class Frame(tk.Frame):
         self.label_especialidad = tk.Label(self, text="Especialidad: ")
         self.label_especialidad.config(font=('Arial',14,'bold','italic'))
         self.label_especialidad.grid(row= 0, column=2,padx=10,pady=10)
+
+        self.label_medico = tk.Label(self, text="Médicos: ")
+        self.label_medico.config(font=('Arial',14,'bold','italic'))
+        self.label_medico.grid(row= 2, column=2,padx=10,pady=10)
     
     def input_form(self):
         self.nombre = tk.StringVar()
@@ -99,6 +103,19 @@ class Frame(tk.Frame):
         self.entry_especialidad.bind("<<ComboboxSelected>>")
         self.entry_especialidad.grid(row= 1, column=2,padx=10,pady=10, columnspan='1')
 
+        m = listar_medico()
+        z = []
+        for i in m:
+            z.append(i[1])
+
+        self.medico = ['Seleccione uno'] + z
+        self.entry_medico = ttk.Combobox(self, state="readonly")
+        self.entry_medico['values'] = self.medico
+        self.entry_medico.current(0)
+        self.entry_medico.config(width=25, state='disabled',font=('Arial',12,'italic'))
+        self.entry_medico.bind("<<ComboboxSelected>>")
+        self.entry_medico.grid(row= 3, column=2,padx=10,pady=10, columnspan='1')
+
     def botones_principales(self):
         self.btn_nuevo = tk.Button(self, text='Nuevo', command=self.habilitar_campos)
         self.btn_nuevo.config(width= 20,font=('Arial', 12,'bold','italic'),fg ='#FFFFFF' , bg='#1C500B',cursor='hand2',activebackground='#3FD83F',activeforeground='#000000')
@@ -118,6 +135,7 @@ class Frame(tk.Frame):
         self.entry_historia.config(state='normal')
         self.entry_telefono.config(state='normal')
         self.entry_especialidad.config(state='normal')
+        self.entry_medico.config(state='normal')
         self.btn_guardar.config(state='normal')
         self.btn_cancelar.config(state='normal')
         self.btn_nuevo.config(state='disabled')
@@ -129,6 +147,8 @@ class Frame(tk.Frame):
         self.entry_telefono.config(state='disabled')
         self.entry_especialidad.config(state='disabled')
         self.entry_especialidad.current(0)
+        self.entry_medico.config(state='disabled')
+        self.entry_medico.current(0)
         self.btn_guardar.config(state='disabled')
         self.btn_cancelar.config(state='disabled')
         self.nombre.set('')
@@ -144,7 +164,8 @@ class Frame(tk.Frame):
             self.apellido.get(),
             self.historia.get(),
             self.telefono.get(),
-            self.entry_especialidad.current()
+            self.entry_especialidad.current(),
+            self.entry_medico.current()
         )
 
         if self.id_paciente == None:
@@ -158,11 +179,11 @@ class Frame(tk.Frame):
     def mostrar_tabla(self):
         self.lista_p = listar_pacientes()
         self.lista_p.reverse()
-        self.tabla = ttk.Treeview(self, columns=('Nombre','Apellido','Historia','Telefono','Especialidad'))
-        self.tabla.grid(row=6,column=0,columnspan=6,padx=10,pady=0,sticky='nse')
+        self.tabla = ttk.Treeview(self, columns=('Nombre','Apellido','Historia','Telefono','Especialidad','Medico'))
+        self.tabla.grid(row=6,column=0,columnspan=7,padx=10,pady=0,sticky='nse')
 
         self.scroll = ttk.Scrollbar(self, orient='vertical', command=self.tabla.yview)
-        self.scroll.grid(row=6, column=5,sticky='nse')
+        self.scroll.grid(row=6, column=7,sticky='nse')
         self.tabla.configure(yscrollcommand= self.scroll.set)
         
         self.tabla.heading('#0',text='ID')
@@ -171,10 +192,11 @@ class Frame(tk.Frame):
         self.tabla.heading('#3',text='Historia')
         self.tabla.heading('#4',text='Telefono')
         self.tabla.heading('#5',text='Especialidad')
+        self.tabla.heading('#6',text='Médico')
 
         for p in self.lista_p:
             self.tabla.insert('',0,text=p[0],
-                              values = (p[1],p[2],p[3],p[4],p[7]))
+                              values = (p[1],p[2],p[3],p[4],p[8],p[10]))
         
         self.btn_modificar = tk.Button(self, text='Modificar',command=self.editar_registro)
         self.btn_modificar.config(width= 20,font=('Arial', 12,'bold'),fg ='#FFFFFF' , bg='#1C500B',cursor='hand2',activebackground='#3FD83F',activeforeground='#000000')
@@ -183,29 +205,6 @@ class Frame(tk.Frame):
         self.btn_eliminar = tk.Button(self, text='Eliminar', command=self.eliminar_registro)
         self.btn_eliminar.config(width= 20,font=('Arial', 12,'bold'),fg ='#FFFFFF' , bg='#FF0000',cursor='hand2',activebackground='#F35B5B',activeforeground='#000000')
         self.btn_eliminar.grid(row=7,column=1,padx=10,pady=10)
-
-
-        self.label_medicos = tk.Label(self, text="Médicos:")
-        self.label_medicos.config(font=('Arial',14,'bold','italic'))
-        self.label_medicos.grid(row=8,column=0,padx=10,pady=10)
-
-        self.lista_m = listar_medicos()
-        self.lista_m.reverse()
-        self.tabla2 = ttk.Treeview(self, columns=('Nombre','Apellido','Especialidad'))
-        self.tabla2.grid(row=8,column=1,columnspan=4,padx=10,pady=10,sticky='nse')
-
-        self.scroll = ttk.Scrollbar(self, orient='vertical', command=self.tabla2.yview)
-        self.scroll.grid(row=8, column=4,padx=0,pady=10,sticky='nse')
-        self.tabla2.configure(yscrollcommand= self.scroll.set)
-
-        self.tabla2.heading('#0',text='ID')
-        self.tabla2.heading('#1',text='Nombre')
-        self.tabla2.heading('#2',text='Apellido')
-        self.tabla2.heading('#3',text='Especialidad')
-
-        for m in self.lista_m:
-            self.tabla2.insert('',0,text=m[0],
-                              values = (m[1],m[2],m[5]))
     
 
     def editar_registro(self):
@@ -217,6 +216,7 @@ class Frame(tk.Frame):
             self.historia_paciente_m = self.tabla.item(self.tabla.selection())['values'][2]
             self.telefono_paciente_m = self.tabla.item(self.tabla.selection())['values'][3]
             self.especialidad_paciente_m = self.tabla.item(self.tabla.selection())['values'][4]
+            self.medico_paciente_m = self.tabla.item(self.tabla.selection())['values'][5]
 
             self.habilitar_campos()
             self.nombre.set(self.nombre_paciente_m)
@@ -224,6 +224,7 @@ class Frame(tk.Frame):
             self.historia.set(self.historia_paciente_m)
             self.telefono.set(self.telefono_paciente_m)
             self.entry_especialidad.current(self.especialidad.index(self.especialidad_paciente_m))
+            self.entry_medico.current(self.medico.index(self.medico_paciente_m))
 
         except:
             pass
